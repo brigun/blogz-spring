@@ -3,6 +3,7 @@ package org.launchcode.blogz.controllers;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.launchcode.blogz.models.Post;
 import org.launchcode.blogz.models.User;
@@ -23,15 +24,39 @@ public class PostController extends AbstractController {
 	@RequestMapping(value = "/blog/newpost", method = RequestMethod.POST)
 	public String newPost(HttpServletRequest request, Model model) {
 		
-		// TODO - implement newPost
+		// TODO - implement newPost 27:43 in video
+		HttpSession session = request.getSession();
+		String title = request.getParameter("title");
+		String body = request.getParameter("body");
+		User author = getUserFromSession(session);
 		
-		return "redirect:index"; // TODO - this redirect should go to the new post's page  		
+		if (title != null && title != "")
+		{
+			if (body != null && body != "")
+			{
+				Post newPost = new Post (title, body, author);
+				postDao.save(newPost);
+				return "redirect:/blog/" + author + "/" + newPost.getUid(); // TODO - this redirect should go to the new post's page
+			}
+			else
+			{
+				model.addAttribute("error", "There is no text in the body of your post");
+			}
+		}
+		else
+		{
+			model.addAttribute("error", "There is no title entered.");
+		}
+		
+		return "redirect:/newpost";  // TODO - this redirect should go to the new post's page  		
 	}
 	
 	@RequestMapping(value = "/blog/{username}/{uid}", method = RequestMethod.GET)
 	public String singlePost(@PathVariable String username, @PathVariable int uid, Model model) {
 		
-		// TODO - implement singlePost
+		// TODO - implement singlePost 30:30 in video
+		Post post = postDao.findByUid(uid);
+		model.addAttribute("post", post);
 		
 		return "post";
 	}
@@ -39,7 +64,10 @@ public class PostController extends AbstractController {
 	@RequestMapping(value = "/blog/{username}", method = RequestMethod.GET)
 	public String userPosts(@PathVariable String username, Model model) {
 		
-		// TODO - implement userPosts
+		// TODO - implement userPosts 30:50 in video
+		List<Post> postsByUser = postDao.findByAuthor(userDao.findByUsername(username).getUid());
+		
+		model.addAttribute("posts", postsByUser);
 		
 		return "blog";
 	}

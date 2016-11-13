@@ -9,6 +9,11 @@
 	<h1>blog users!</h1>
 
 	<!--  TODO - list all users, with links to their blog pages -->
+	<div>
+		<ul th:each="user : ${users}">
+			<li><a th:href="'/blog/' + ${user.username}"></a></li>
+		</ul>
+	</div>
 
 </body>
 </html>
